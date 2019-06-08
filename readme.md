@@ -6,4 +6,6 @@ Game of live according to [Conway's](https://en.wikipedia.org/wiki/Conway%27s_Ga
 
 ![ani2](https://github.com/madeinouweland/game-of-life/blob/master/game2.gif)
 
+Adapts to browser resizing:
+
 ![ani3](https://github.com/madeinouweland/game-of-life/blob/master/game3.gif)
