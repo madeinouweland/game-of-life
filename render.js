@@ -4,20 +4,7 @@ let generations = 0;
 let speed = 10;
 let livingCells = 0;
 
-let isRunning = true;
-
-function keyPressed() {
-  if (key === " ") {
-    if (isRunning) {
-      noLoop();
-      isRunning = false;
-    } else {
-      loop();
-      isRunning = true;
-    }
-  }
-}
-
+// https://www.justgivemeanexample.com/example/get-a-random-number-from-min-to-max-in-javascript
 function GetRandomNumber(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
@@ -72,47 +59,30 @@ function drawCells() {
 }
 
 function getNeighboursCount(row, col) {
-  let count = 0;
-  let left = col - 1;
-  if(left < 0) {
-    left = horizontalCellCount - 1;
-  }
-  let right = col + 1;
-  if(right > horizontalCellCount - 1) {
-    right = 0;
-  }
-  let top = row - 1;
-  if(top < 0) {
-    top = verticalCellCount - 1;
-  }
-  let bottom = row + 1;
-  if(bottom > verticalCellCount - 1) {
-    bottom = 0;
-  }
+  let neighbours = [
+    [-1,  0],
+    [-1,  1],
+    [ 0,  1],
+    [ 1,  1],
+    [ 1,  0],
+    [ 1, -1],
+    [ 0, -1],
+    [-1, -1]
+  ]
 
-  if(world[row][left] === true) {
-    count++;
-  }
-  if(world[top][left] === true) {
-    count++;
-  }
-  if(world[top][col] === true) {
-    count++;
-  }
-  if(world[top][right] === true) {
-    count++;
-  }
-  if(world[row][right] === true) {
-    count++;
-  }
-  if(world[bottom][right] === true) {
-    count++;
-  }
-  if(world[bottom][col] === true) {
-    count++;
-  }
-  if(world[bottom][left] === true) {
-    count++;
+  let count = 0;
+  for(const n of neighbours) {
+    let nr = (row + n[0]) % verticalCellCount;
+    if (nr === -1) {
+      nr = verticalCellCount - 1;
+    }
+    let nc = (col + n[1]) % horizontalCellCount;
+    if (nc === -1) {
+      nc = horizontalCellCount - 1;
+    }
+    if (world[nr][nc] === true) {
+      count++;
+    }
   }
   return count;
 }
@@ -121,8 +91,8 @@ function tick() {
   generations++;
   let die = [];
   let birth = [];
-  for(let row = 0;row < verticalCellCount;row++) {
-    for(let col = 0;col < horizontalCellCount;col++) {
+  for (let row = 0;row < verticalCellCount;row++) {
+    for (let col = 0;col < horizontalCellCount;col++) {
       let count = getNeighboursCount(row, col);
       if (world[row][col] === true && count < 2) {
         die.push([row, col]);
@@ -133,6 +103,9 @@ function tick() {
       if (world[row][col] === false && count === 3) {
         birth.push([row, col]);
       }
+      // extra rule that is not in Conway's game of live:
+      // if a cell has 8 neightbours, create 20 random living cells.
+      // that way the game never goes to a static state
       if (world[row][col] === false && count === 8) {
         for(let i = 0;i < 20;i++) {
           world[GetRandomNumber(0, verticalCellCount - 1)][GetRandomNumber(0, horizontalCellCount - 1)] = true;
@@ -156,7 +129,7 @@ function tick() {
 function drawInfo() {
   textSize(20);
   fill("#F9F871");
-  text(`${horizontalCellCount}x${verticalCellCount}, cells: ${livingCells}, generation ${generations}`, 10, 30);
+  text(`Grid: ${horizontalCellCount}x${verticalCellCount}, Alive: ${livingCells}, Generation: ${generations}`, 10, 30);
 }
 
 function drawDots() {
